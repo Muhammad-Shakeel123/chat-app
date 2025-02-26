@@ -22,14 +22,16 @@ app.use(express.static('public')); // ✅ Serves static files from 'public' fold
 app.use(cookieParser());
 
 // Routes imports
-import userRoutes from './routes/auth.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from "./routes/user.routes.js"
 
 // Routes declaration
-app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use("/api/v1/user", userRoutes)
 
 // ✅ Serve the HTML page for API documentation
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '', 'index.html'));
 });
 
 export { app };
