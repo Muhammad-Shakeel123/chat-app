@@ -11,7 +11,8 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
-      throw new ApiError(401, "Unauthorized token");
+      throw new ApiError(401, "Access token is missing or invalid");
+
     }
 
     // verify the from the jwt
@@ -22,7 +23,8 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     );
 
     if (!user) {
-      throw new ApiError(401, "Invalid access  token");
+      throw new ApiError(401, "Access token is invalid or expired");
+
     }
 
     // if user is present then we will add user to the req object

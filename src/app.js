@@ -28,10 +28,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ✅ Import Routes
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import sessionRoutes from './routes/session.routes.js';
+import messageRoutes from './routes/message.routes.js';
 
-// ✅ API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/session', sessionRoutes);
+app.use('/api/v1/message', messageRoutes);
+
 
 // ✅ Serve Frontend (public/index.html)
 app.get('*', (req, res) => {

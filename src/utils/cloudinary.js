@@ -7,7 +7,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudnary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath) => {
+
   try {
     if (!localFilePath) return null;
     const response = await cloudinary.uploader.upload(localFilePath, {
@@ -19,8 +20,10 @@ const uploadOnCloudnary = async (localFilePath) => {
     return response;
   } catch (error) {
     fs.unlinkSync(localFilePath);
+    console.error("Error uploading to Cloudinary:", error);
     return null;
+
   }
 };
 
-export default  uploadOnCloudnary;
+export default  uploadOnCloudinary;

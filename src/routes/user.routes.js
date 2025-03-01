@@ -5,9 +5,11 @@ import {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
+  getActiveUsers,
 } from '../controllers/user.controller.js';
 import verifyJWT from '../middlewares/auth.middleware.js';
 import { upload } from '../middlewares/multer.middelware.js';
+
 const router = Router();
 
 router.route('/logout').post(verifyJWT, logoutUser);
@@ -17,5 +19,6 @@ router.route('/update-account').patch(verifyJWT, updateAccountDetails);
 router
   .route('/avatar')
   .patch(verifyJWT, upload.single('avatar'), updateUserAvatar);
+  router.route('/active-users').get(getActiveUsers);
 
 export default router;

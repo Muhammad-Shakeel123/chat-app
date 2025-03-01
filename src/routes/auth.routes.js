@@ -1,5 +1,6 @@
 import Router from 'express';
 import { upload } from '../middlewares/multer.middelware.js';
+
 import {
   registerUser,
   userLogin,
@@ -19,4 +20,3 @@ router.route('/register').post(
 router.route('/login').post(userLogin);
 router.route('/refresh-token').post(refreshAccessToken);
 export default router;
-

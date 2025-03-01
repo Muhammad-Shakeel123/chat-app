@@ -2,7 +2,8 @@ import ApiError from '../utils/ApiErrors.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { User } from '../models/user.model.js';
-import uploadOnCloudnary from '../utils/cloudinary.js';
+import uploadOnCloudinary from '../utils/cloudinary.js';
+
 import jwt from 'jsonwebtoken';
 
 const generateAccessAndRefreshTokens = async userId => {
@@ -42,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Avatar is required');
   }
 
-  const avatar = await uploadOnCloudnary(avatarLocalPath);
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
   if (!avatar?.url) {
     throw new ApiError(500, 'Avatar upload failed');
   }
@@ -76,7 +77,7 @@ const userLogin = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Username or Email are required');
   }
   const user = await User.findOne({
-    $or: [{ username }, {email}],
+    $or: [{ username }, { email }],
   });
   if (!user) {
     throw new ApiError(404, 'User dose not exist');
@@ -136,16 +137,19 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
     };
 
-    const { newrefreshToken, accessToken } =
-      await generateAccessAndRefreshTokens(user._id);
+    const { refreshToken, accessToken } = await generateAccessAndRefreshTokens(
+      user._id,
+    );
     return res
       .status(200)
       .cookie('accessToken', accessToken, options)
-      .cookie('refreshToken', newrefreshToken, options)
+      .cookie('refreshToken', refreshToken, options)
       .json(
-        200,
-        { refreshToken: newrefreshToken, accessToken },
-        'Refresh token successfully',
+        new ApiResponse(
+          200,
+          { refreshToken, accessToken },
+          'Refresh token successfully',
+        ),
       );
   } catch (error) {
     throw new ApiError(401, error?.message || 'Invalid refresh token');

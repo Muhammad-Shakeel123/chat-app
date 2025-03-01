@@ -97,6 +97,21 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, 'Avatar updated successfully'));
 });
+const getActiveUsers = asyncHandler(async (req, res) => {
+  const activeUsers = await User.find({ status: { $ne: 'offline' } }).select(
+    '-password -refreshToken',
+  );
+
+  if (!activeUsers.length) {
+    throw new ApiError(404, 'No active users found');
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, activeUsers, 'Active users fetched successfully'),
+    );
+});
 
 export {
   logoutUser,
@@ -104,4 +119,5 @@ export {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
+  getActiveUsers
 };

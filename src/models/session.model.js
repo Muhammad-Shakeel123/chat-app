@@ -12,28 +12,14 @@ const sessionSchema = new Schema(
       ref: 'User',
       required: true,
     },
-    status: {
-      type: String,
-      enum: ['active', 'ended'],
-      default: 'active',
-    },
-    startedAt: {
-      type: Date,
-      default: Date.now,
-    },
-    endedAt: {
-      type: Date,
-      default: null, // Ensure it's `null` until session ends
-    },
-    sessionType: {
-      type: String,
-      enum: ['text', 'video'],
-      default: 'video',
-    },
+    status: { type: String, enum: ['active', 'ended'], default: 'active' },
+    startedAt: { type: Date, default: Date.now },
+    endedAt: { type: Date, default: null },
+    sessionType: { type: String, enum: ['text', 'video'], default: 'video' },
     messages: [
       {
         sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        content: { type: String },
+        content: { type: String, required: true },
         timestamp: { type: Date, default: Date.now },
       },
     ],
