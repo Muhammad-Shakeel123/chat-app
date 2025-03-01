@@ -8,7 +8,10 @@
   ],
   "routes": [
     {
-      "src": "/api/v1/(.*)",
+      "src": "/api/v1/auth(.*)",
+      "src": "/api/v1/user(.*)",
+      "src": "/api/v1/session(.*)",
+      "src": "/api/v1/message(.*)",
       "dest": "/src/index.js"
     }
   ]
