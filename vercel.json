@@ -9,10 +9,8 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "src/index.js"
+      "dest": "/src/index.js"
     }
-  ],
-  "ignore": [
-    "public"
   ]
+
 }
