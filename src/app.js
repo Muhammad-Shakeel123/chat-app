@@ -30,7 +30,6 @@ app.use('/api/v1/session', sessionRoutes);
 app.use('/api/v1/message', messageRoutes);
 
 
-// ✅ Serve Frontend (public/index.html)
 app.get('/', (req, res) => {
   res.send('Backend is running...');
 });
