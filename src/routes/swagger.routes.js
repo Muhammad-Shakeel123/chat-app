@@ -1,9 +1,9 @@
-import express from 'express';
+import { Router } from 'express';
 import { swaggerUi, swaggerSpec } from '../utils/swagger.js';
 
-const router = express.Router();
+const router = Router();
 
 // ✅ Serve Swagger UI at `/docs`
-router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+router.route('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 export default router;
