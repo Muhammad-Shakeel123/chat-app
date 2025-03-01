@@ -8,8 +8,19 @@
   ],
   "routes": [
     {
+      "src": "/docs/(.*)",
+      "dest": "/public/swagger-ui/$1"
+    },
+    {
+      "src": "/swagger-ui/(.*)",
+      "dest": "/public/swagger-ui/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "src/index.js"
     }
-  ]
+  ],
+  "static": {
+    "public": "public"
+  }
 }

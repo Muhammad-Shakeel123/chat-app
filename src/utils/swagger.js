@@ -1,3 +1,4 @@
+import path from 'path';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import express from 'express';
@@ -15,18 +16,23 @@ const options = {
     },
     servers: [
       {
-        url: 'https://chat-8iy29sswz-muhammad-shakeels-projects-72a083da.vercel.app', // Vercel deployment URL
+        url: 'https://chat-app-kappa-two-45.vercel.app', // Your Vercel URL
         description: 'Production Server',
       },
     ],
   },
-  apis: ['./routes/auth.routes.js'], // Ensure your routes have Swagger comments
+  apis: ['./routes/*.js'], // Ensure your routes have Swagger comments
 };
 
 const specs = swaggerJsdoc(options);
 
-// Fix routing for Vercel
-router.use('/', swaggerUi.serve);
-router.get('/', swaggerUi.setup(specs));
+// Serve API Docs at /docs
+router.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+// Serve Swagger UI files at /swagger-ui
+router.use(
+  '/swagger-ui',
+  express.static(path.join(process.cwd(), 'public/swagger-ui')),
+);
 
 export default router;
