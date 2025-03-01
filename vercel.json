@@ -10,6 +10,11 @@
     {
       "src": "/api/(.*)",
       "dest": "/src/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
     }
   ]
+
 }
