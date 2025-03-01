@@ -15,7 +15,7 @@ const options = {
     },
     servers: [
       {
-        url: 'https://chat-app-kappa-two-45.vercel.app', // Change this to your actual deployed URL
+        url: 'https://chat-app-kappa-two-45.vercel.app', // Deployed URL
         description: 'Production server',
       },
     ],
@@ -24,6 +24,8 @@ const options = {
 };
 
 const specs = swaggerJsdoc(options);
-router.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+// ✅ Fix: Use router instead of exporting directly
+router.use('/', swaggerUi.serve, swaggerUi.setup(specs));
 
 export default router;
