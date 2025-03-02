@@ -32,9 +32,6 @@ app.use('/api/v1/session', sessionRoutes);
 app.use('/api/v1/message', messageRoutes);
 app.use('/api/v1', swaggerRoutes); // Add Swagger routes here
 
-// Setup Swagger Docs
-import setupSwagger from './utils/swagger.js';
-setupSwagger(app); // Integrating Swagger UI and Swagger JSON route
 
 app.get('/', (req, res) => {
   res.send('Backend is running...');

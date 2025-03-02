@@ -1,29 +1,18 @@
-// utils/swagger.js
 import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
 
-const options = {
+const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Node.js API Documentation',
+      title: 'Your API',
       version: '1.0.0',
-      description: 'API documentation for your Node.js application',
+      description: 'API documentation for your project',
     },
-    servers: [
-      {
-        url: 'http://localhost:3000', // Change to the Vercel URL for production
-      },
-    ],
+    servers: [{ url: 'https://your-vercel-app.vercel.app/api' }], // Replace with your Vercel URL
   },
-  apis: ['./routes/*.js'], // Path to the API routes (adjust as needed)
+  apis: ['./src/routes/*.js'], // Ensure this path matches your project
 };
 
-const swaggerSpec = swaggerJsdoc(options);
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-const setupSwagger = app => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Route for Swagger UI
-  console.log('Swagger Docs available at /api-docs');
-};
-
-export default setupSwagger;
+export default swaggerSpec;
