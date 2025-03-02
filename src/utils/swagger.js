@@ -1,4 +1,3 @@
-// utils/swagger.js
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
@@ -12,17 +11,32 @@ const options = {
     },
     servers: [
       {
-        url: 'https://chat-app-kappa-two-45.vercel.app/api-docs', 
+        url: 'https://chat-app-kappa-two-45.vercel.app/api-docs',
       },
     ],
   },
-  apis: ['../routes/*.js'], // Path to the API routes (adjust as needed)
+  apis: ['../routes/*.js'], // Make sure the path is correct
 };
 
+// Generate the Swagger documentation
 const swaggerSpec = swaggerJsdoc(options);
 
+// ✅ Add custom styles and scripts
+const swaggerOptions = {
+  customCssUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+  customJs: [
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js',
+  ],
+};
+
 const setupSwagger = app => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Route for Swagger UI
+  app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, swaggerOptions),
+  );
   console.log('Swagger Docs available at /api-docs');
 };
 
