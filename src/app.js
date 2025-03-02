@@ -30,7 +30,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/session', sessionRoutes);
 app.use('/api/v1/message', messageRoutes);
-app.use('/api/v1', swaggerRoutes); // Add Swagger routes here
+app.use('/api/v1/docs', swaggerRoutes);
 
 
 app.get('/', (req, res) => {

@@ -1,4 +1,8 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import express from 'express';
+
+const router = express.Router();
 
 const swaggerOptions = {
   definition: {
@@ -8,11 +12,19 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'API documentation for your project',
     },
-    servers: [{ url: 'https://your-vercel-app.vercel.app/api' }], // Replace with your Vercel URL
+    servers: [
+      {
+        url: process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}/api/v1`
+          : 'http://localhost:3000/api/v1',
+      },
+    ],
   },
-  apis: ['./src/routes/*.js'], // Ensure this path matches your project
+  apis: ['./src/routes/*.js'], // Make sure this path is correct
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-export default swaggerSpec;
+router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+export default router;
