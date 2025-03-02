@@ -1,8 +1,9 @@
 import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
-import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const swaggerOptions = {
   definition: {
@@ -12,19 +13,11 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'API documentation for your project',
     },
-    servers: [
-      {
-        url: process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/api/v1`
-          : 'http://localhost:3000/api/v1',
-      },
-    ],
+    servers: [{ url: 'https://chat-app-kappa-two-45.vercel.app//api/v1' }], // Ensure correct base URL
   },
-  apis: ['./src/routes/*.js'], // Make sure this path is correct
+  apis: [path.join(__dirname, '../routes/*.js')], // Adjusted path for Vercel
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-router.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-export default router;
+export default swaggerSpec;

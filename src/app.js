@@ -1,4 +1,3 @@
-// app.js
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -12,7 +11,7 @@ const __dirname = path.dirname(__filename);
 // ✅ Enable CORS
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN || '*', // Allow all origins if not set
     credentials: true,
   }),
 );
@@ -28,16 +27,16 @@ import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import sessionRoutes from './routes/session.routes.js';
 import messageRoutes from './routes/message.routes.js';
-import swaggerRoutes from './routes/swagger.routes.js'; // Import the Swagger routes
+import swaggerRoutes from './routes/swagger.routes.js'; // Swagger Routes
 
 // ✅ Use Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/session', sessionRoutes);
 app.use('/api/v1/message', messageRoutes);
-app.use('/api/v1/docs', swaggerRoutes);
+app.use('/api/v1/docs', swaggerRoutes); // Ensure correct Swagger route
 
-
+// ✅ Test Route
 app.get('/', (req, res) => {
   res.send('Backend is running...');
 });
