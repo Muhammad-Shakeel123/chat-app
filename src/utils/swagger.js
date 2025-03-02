@@ -1,23 +1,29 @@
+// utils/swagger.js
 import swaggerJsdoc from 'swagger-jsdoc';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const swaggerOptions = {
+const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Your API',
+      title: 'Node.js API Documentation',
       version: '1.0.0',
-      description: 'API documentation for your project',
+      description: 'API documentation for your Node.js application',
     },
-    servers: [{ url: 'https://chat-app-kappa-two-45.vercel.app//api/v1' }], // Ensure correct base URL
+    servers: [
+      {
+        url: 'http://localhost:3000', // Change to the Vercel URL for production
+      },
+    ],
   },
-  apis: [path.join(__dirname, '../routes/*.js')], // Adjusted path for Vercel
+  apis: ['./routes/*.js'], // Path to the API routes (adjust as needed)
 };
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
+const swaggerSpec = swaggerJsdoc(options);
 
-export default swaggerSpec;
+const setupSwagger = app => {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Route for Swagger UI
+  console.log('Swagger Docs available at /api-docs');
+};
+
+export default setupSwagger;
