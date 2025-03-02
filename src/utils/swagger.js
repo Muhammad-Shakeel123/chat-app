@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: 'https://chat-app-kappa-two-45.vercel.app/api/v1/docs', // Change to the Vercel URL for production
+        url: 'https://chat-app-kappa-two-45.vercel.app/api-docs', 
       },
     ],
   },
