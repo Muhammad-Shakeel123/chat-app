@@ -15,7 +15,7 @@ const options = {
       },
     ],
   },
-  apis: ['../routes/*.js'], // Make sure the path is correct
+  apis: ['./routes/*.js'], // Make sure the path is correct
 };
 
 // Generate the Swagger documentation
