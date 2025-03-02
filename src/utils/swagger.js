@@ -5,9 +5,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Node.js API Documentation',
-      version: '1.0.0',
-      description: 'API documentation for your Node.js application',
+      title: 'Chat Application API Documentation',
+      description: 'API documentation for the Chat Application built with Node.js',
+
     },
     servers: [
       {
