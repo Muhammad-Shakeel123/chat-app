@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
  * /api/v1/auth/register:
  *   post:
  *     summary: Register a new user
- *     description: Creates a new user account with an avatar upload.
+ *     description: Creates a new user account with an avatar upload. The avatar image is required and will be stored on Cloudinary.
  *     tags:
  *       - Authentication
  *     requestBody:
@@ -37,25 +37,30 @@ router.get('/', (req, res) => {
  *             properties:
  *               username:
  *                 type: string
+ *                 description: "Unique username for the user"
  *                 example: "salman"
  *               email:
  *                 type: string
  *                 format: email
+ *                 description: "Valid email address for the user"
  *                 example: "salman@gmail.com"
  *               password:
  *                 type: string
  *                 format: password
- *                 example: "securepassword123"
+ *                 description: "User's password (must be strong)"
+ *                 example: "SecurePass123!"
  *               country:
  *                 type: string
+ *                 description: "User's country of residence"
  *                 example: "Pakistan"
  *               fullName:
  *                 type: string
+ *                 description: "User's full legal name"
  *                 example: "Salman Khan"
  *               avatar:
  *                 type: string
  *                 format: binary
- *                 description: "User avatar image file"
+ *                 description: "Profile picture upload (required)"
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -67,10 +72,10 @@ router.get('/', (req, res) => {
  *                 statusCode:
  *                   type: integer
  *                   example: 201
- *                 data:
+ *                 message:
  *                   type: string
  *                   example: "User created successfully"
- *                 message:
+ *                 data:
  *                   type: object
  *                   properties:
  *                     _id:
@@ -78,7 +83,7 @@ router.get('/', (req, res) => {
  *                       example: "67c4ae7e25e65067886fc0eb"
  *                     fullName:
  *                       type: string
- *                       example: "Salman"
+ *                       example: "Salman Khan"
  *                     username:
  *                       type: string
  *                       example: "salman"
@@ -96,7 +101,7 @@ router.get('/', (req, res) => {
  *                       example: "user"
  *                     avatar:
  *                       type: string
- *                       example: "http://res.cloudinary.com/dmvwgos9j/image/upload/v1740942973/tlq3zn81wusudoix83ua.jpg"
+ *                       example: "https://res.cloudinary.com/dmvwgos9j/image/upload/v1740942973/sample.jpg"
  *                     createdAt:
  *                       type: string
  *                       format: date-time
@@ -105,12 +110,6 @@ router.get('/', (req, res) => {
  *                       type: string
  *                       format: date-time
  *                       example: "2025-03-02T19:16:14.018Z"
- *                     __v:
- *                       type: integer
- *                       example: 0
- *                 success:
- *                   type: boolean
- *                   example: true
  *       400:
  *         description: Bad request (missing fields or invalid input)
  *         content:
@@ -127,8 +126,24 @@ router.get('/', (req, res) => {
  *                 success:
  *                   type: boolean
  *                   example: false
+ *       409:
+ *         description: Conflict (Username or email already exists)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 409
+ *                 message:
+ *                   type: string
+ *                   example: "Username or email already exists"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  *       500:
- *         description: Internal server error
+ *         description: Internal server error (Avatar upload failed or DB error)
  *         content:
  *           application/json:
  *             schema:
@@ -144,6 +159,7 @@ router.get('/', (req, res) => {
  *                   type: boolean
  *                   example: false
  */
+
 router.route('/register').post(
   upload.fields([
     {
@@ -158,27 +174,32 @@ router.route('/register').post(
  * /api/v1/auth/login:
  *   post:
  *     summary: User Login
- *     description: Logs in a user with email or username and password.
- *     tags: [Auth]
+ *     description: Authenticates a user with email or username and password, returning access and refresh tokens.
+ *     tags:
+ *       - Authentication
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - password
  *             properties:
  *               email:
  *                 type: string
- *                 example: "salman@gmail.com"
+ *                 format: email
+ *                 example: "shakeel@gmail.com"
  *               username:
  *                 type: string
- *                 example: "salman"
+ *                 example: "muhammadshakeel"
  *               password:
  *                 type: string
- *                 example: "password123"
+ *                 format: password
+ *                 example: "securepassword123"
  *     responses:
  *       200:
- *         description: User logged in successfully.
+ *         description: User logged in successfully
  *         content:
  *           application/json:
  *             schema:
@@ -195,16 +216,17 @@ router.route('/register').post(
  *                       properties:
  *                         _id:
  *                           type: string
- *                           example: "67c4ae7e25e65067886fc0eb"
+ *                           example: "67c5d33ff091d1a457eb1c6d"
  *                         fullName:
  *                           type: string
- *                           example: "Salman"
+ *                           example: "Muhammad Shakeel"
  *                         username:
  *                           type: string
- *                           example: "salman"
+ *                           example: "muhammadshakeel"
  *                         email:
  *                           type: string
- *                           example: "salman@gmail.com"
+ *                           format: email
+ *                           example: "shakeel@gmail.com"
  *                         country:
  *                           type: string
  *                           example: "Pakistan"
@@ -216,15 +238,19 @@ router.route('/register').post(
  *                           example: "user"
  *                         avatar:
  *                           type: string
- *                           example: "http://res.cloudinary.com/dmvwgos9j/image/upload/v1740942973/tlq3zn81wusudoix83ua.jpg"
+ *                           format: uri
+ *                           example: "http://res.cloudinary.com/dmvwgos9j/image/upload/v1741017919/kgkvlalvclf0g5xavvc7.jpg"
  *                         createdAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2025-03-02T19:16:14.018Z"
+ *                           example: "2025-03-03T16:05:19.576Z"
  *                         updatedAt:
  *                           type: string
  *                           format: date-time
- *                           example: "2025-03-02T19:26:18.144Z"
+ *                           example: "2025-03-03T16:30:14.356Z"
+ *                         __v:
+ *                           type: integer
+ *                           example: 0
  *                     accessToken:
  *                       type: string
  *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -235,12 +261,71 @@ router.route('/register').post(
  *                   type: boolean
  *                   example: true
  *       400:
- *         description: Username or Email are required.
+ *         description: Missing required fields (username/email or password)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: "Username or Email are required"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  *       401:
- *         description: Invalid credentials.
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid credentials"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  *       404:
- *         description: User does not exist.
+ *         description: User does not exist
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 404
+ *                 message:
+ *                   type: string
+ *                   example: "User does not exist"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong while logging in"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  */
+
 router.route('/login').post(userLogin);
 
 /**
@@ -248,8 +333,11 @@ router.route('/login').post(userLogin);
  * /api/v1/auth/refresh-token:
  *   post:
  *     summary: Refresh Access Token
- *     description: Generates a new access token using a valid refresh token.
- *     tags: [Auth]
+ *     description: Generates a new access token and refresh token using a valid refresh token.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: false
  *       content:
@@ -260,16 +348,9 @@ router.route('/login').post(userLogin);
  *               refreshToken:
  *                 type: string
  *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *     parameters:
- *       - in: cookie
- *         name: refreshToken
- *         schema:
- *           type: string
- *         required: false
- *         description: Refresh token can be sent as a cookie.
  *     responses:
  *       200:
- *         description: Successfully refreshed token.
+ *         description: New access and refresh tokens generated successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -281,10 +362,10 @@ router.route('/login').post(userLogin);
  *                 data:
  *                   type: object
  *                   properties:
- *                     refreshToken:
+ *                     accessToken:
  *                       type: string
  *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *                     accessToken:
+ *                     refreshToken:
  *                       type: string
  *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *                 message:
@@ -294,7 +375,43 @@ router.route('/login').post(userLogin);
  *                   type: boolean
  *                   example: true
  *       401:
- *         description: Unauthorized request or invalid/expired refresh token.
+ *         description: Unauthorized or invalid refresh token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid refresh token"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong while refreshing token"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *
+ *   securitySchemes:
+ *     cookieAuth:
+ *       type: apiKey
+ *       in: cookie
+ *       name: refreshToken
  */
 
 router.route('/refresh-token').post(refreshAccessToken);

@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import { createSession, getSession, endSession } from '../controllers/session.controller.js';
+import verifyJWT from '../middlewares/auth.middleware.js';
 
 const router = Router();
 /**
  * @swagger
- * /api/v1/sessions/create:
+ * /api/v1/session/create:
  *   post:
- *     summary: Create a new session
- *     description: Initiates a chat or video session between two users.
- *     tags: [Sessions]
- *     security:
- *       - bearerAuth: []
+ *     summary: Create a new chat or video session
+ *     description: Establishes a new session between two users for chatting or video calls.
+ *     tags:
+ *       - Sessions
  *     requestBody:
  *       required: true
  *       content:
@@ -20,18 +20,16 @@ const router = Router();
  *             properties:
  *               user1:
  *                 type: string
- *                 example: "67c4ae7e25e65067886fc0eb"
+ *                 format: uuid
+ *                 example: "67be25914d759b3f1f540a7d"
  *               user2:
  *                 type: string
- *                 example: "67c4ae7e25e65067886fc0ec"
+ *                 format: uuid
+ *                 example: "67bf6768477060dfb703e963"
  *               sessionType:
  *                 type: string
- *                 enum: ["video", "chat"]
- *                 example: "chat"
- *             required:
- *               - user1
- *               - user2
- *               - sessionType
+ *                 enum: ["chat", "video"]
+ *                 example: "video"
  *     responses:
  *       201:
  *         description: Session created successfully.
@@ -48,27 +46,35 @@ const router = Router();
  *                   properties:
  *                     _id:
  *                       type: string
- *                       example: "67c4ae7e25e65067886fc0ed"
+ *                       example: "67c5da4f4632bb5aeea80816"
  *                     user1:
  *                       type: string
- *                       example: "67c4ae7e25e65067886fc0eb"
+ *                       example: "67be25914d759b3f1f540a7d"
  *                     user2:
  *                       type: string
- *                       example: "67c4ae7e25e65067886fc0ec"
- *                     sessionType:
- *                       type: string
- *                       example: "chat"
+ *                       example: "67bf6768477060dfb703e963"
  *                     status:
  *                       type: string
  *                       example: "active"
- *                     startedAt:
+ *                     sessionType:
  *                       type: string
- *                       format: date-time
- *                       example: "2025-03-02T19:33:40.952Z"
+ *                       example: "video"
  *                     roomId:
  *                       type: string
  *                       nullable: true
- *                       example: null
+ *                       example: "room_1741017919288"
+ *                     startedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-03T16:35:27.288Z"
+ *                     messages:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: []
+ *                 message:
+ *                   type: string
+ *                   example: "Session created successfully"
  *                 success:
  *                   type: boolean
  *                   example: true
@@ -82,39 +88,97 @@ const router = Router();
  *                 statusCode:
  *                   type: integer
  *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "Session already exists"
  *                 data:
  *                   type: object
- *                   example: { "_id": "67c4ae7e25e65067886fc0ed", "user1": "67c4ae7e25e65067886fc0eb", "user2": "67c4ae7e25e65067886fc0ec", "sessionType": "chat", "status": "active", "startedAt": "2025-03-02T19:33:40.952Z", "roomId": null }
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "67c5da4f4632bb5aeea80816"
+ *                     user1:
+ *                       type: string
+ *                       example: "67be25914d759b3f1f540a7d"
+ *                     user2:
+ *                       type: string
+ *                       example: "67bf6768477060dfb703e963"
+ *                     status:
+ *                       type: string
+ *                       example: "active"
+ *                     sessionType:
+ *                       type: string
+ *                       example: "video"
+ *                     roomId:
+ *                       type: string
+ *                       nullable: true
+ *                       example: "room_1741017919288"
+ *                     startedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-03T16:35:27.288Z"
+ *                     messages:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: []
  *                 success:
  *                   type: boolean
  *                   example: true
  *       400:
  *         description: Session type is required.
- *       401:
- *         description: Unauthorized request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: "Session type is required"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong while creating session"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  */
 
+
 // Route to create a new session
-router.post('/create', createSession);
+router.post('/create',verifyJWT, createSession);
 /**
  * @swagger
- * /api/v1/sessions/{sessionId}:
+ * /api/v1/session/{sessionId}:
  *   get:
- *     summary: Retrieve session details
- *     description: Fetches session details including user information.
- *     tags: [Sessions]
- *     security:
- *       - bearerAuth: []
+ *     summary: Retrieve session details by session ID
+ *     description: Fetches session details including users, status, and messages.
+ *     tags:
+ *       - Sessions
  *     parameters:
  *       - in: path
  *         name: sessionId
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the session to retrieve.
- *         example: "67c4ae7e25e65067886fc0ed"
+ *           format: uuid
+ *         example: "67c5da4f4632bb5aeea80816"
+ *         description: The unique ID of the session to retrieve.
  *     responses:
  *       200:
  *         description: Session retrieved successfully.
@@ -131,35 +195,58 @@ router.post('/create', createSession);
  *                   properties:
  *                     _id:
  *                       type: string
- *                       example: "67c4ae7e25e65067886fc0ed"
+ *                       example: "67c5da4f4632bb5aeea80816"
  *                     user1:
  *                       type: object
+ *                       nullable: true
  *                       properties:
  *                         _id:
  *                           type: string
- *                           example: "67c4ae7e25e65067886fc0eb"
+ *                           example: "67be25914d759b3f1f540a7d"
  *                         username:
  *                           type: string
- *                           example: "JohnDoe"
+ *                           example: "john_doe"
  *                     user2:
  *                       type: object
+ *                       nullable: true
  *                       properties:
  *                         _id:
  *                           type: string
- *                           example: "67c4ae7e25e65067886fc0ec"
+ *                           example: "67bf6768477060dfb703e963"
  *                         username:
  *                           type: string
- *                           example: "JaneDoe"
- *                     sessionType:
- *                       type: string
- *                       example: "chat"
+ *                           example: "jane_smith"
  *                     status:
  *                       type: string
  *                       example: "active"
+ *                     sessionType:
+ *                       type: string
+ *                       example: "video"
  *                     startedAt:
  *                       type: string
  *                       format: date-time
- *                       example: "2025-03-02T19:33:40.952Z"
+ *                       example: "2025-03-03T16:35:27.288Z"
+ *                     endedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       nullable: true
+ *                       example: null
+ *                     messages:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: []
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-03T16:35:27.310Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-03T16:35:27.310Z"
+ *                 message:
+ *                   type: string
+ *                   example: "Session retrieved successfully"
  *                 success:
  *                   type: boolean
  *                   example: true
@@ -176,31 +263,46 @@ router.post('/create', createSession);
  *                 message:
  *                   type: string
  *                   example: "Session not found"
- *       401:
- *         description: Unauthorized request.
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong while retrieving session"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  */
 
 // Route to get a session by ID
 router.get('/:sessionId', getSession);
 /**
  * @swagger
- * /api/v1/sessions/end/{sessionId}:
+ * /api/v1/session/end/{sessionId}:
  *   delete:
  *     summary: End an active session
- *     description: Marks a session as ended and sets the end timestamp.
- *     tags: [Sessions]
- *     security:
- *       - bearerAuth: []
+ *     description: Marks a session as 'ended' and records the end time.
+ *     tags:
+ *       - Sessions
  *     parameters:
  *       - in: path
  *         name: sessionId
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the session to be ended.
- *         example: "67c4ae7e25e65067886fc0ed"
+ *           format: uuid
+ *         example: "67c5da4f4632bb5aeea80816"
+ *         description: The unique ID of the session to be ended.
  *     responses:
  *       200:
  *         description: Session ended successfully.
@@ -212,22 +314,51 @@ router.get('/:sessionId', getSession);
  *                 statusCode:
  *                   type: integer
  *                   example: 200
- *                 message:
- *                   type: string
- *                   example: "Session ended successfully"
  *                 data:
  *                   type: object
  *                   properties:
  *                     _id:
  *                       type: string
- *                       example: "67c4ae7e25e65067886fc0ed"
+ *                       example: "67c5da4f4632bb5aeea80816"
+ *                     user1:
+ *                       type: string
+ *                       example: "67be25914d759b3f1f540a7d"
+ *                     user2:
+ *                       type: string
+ *                       example: "67bf6768477060dfb703e963"
  *                     status:
  *                       type: string
  *                       example: "ended"
+ *                     sessionType:
+ *                       type: string
+ *                       example: "video"
+ *                     startedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-03T16:35:27.288Z"
  *                     endedAt:
  *                       type: string
  *                       format: date-time
- *                       example: "2025-03-02T20:00:00.000Z"
+ *                       example: "2025-03-03T16:54:03.940Z"
+ *                     messages:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: []
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-03T16:35:27.310Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-03-03T16:54:03.940Z"
+ *                 message:
+ *                   type: string
+ *                   example: "Session ended successfully"
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *       404:
  *         description: Session not found.
  *         content:
@@ -241,11 +372,27 @@ router.get('/:sessionId', getSession);
  *                 message:
  *                   type: string
  *                   example: "Session not found"
- *       401:
- *         description: Unauthorized request.
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  *       500:
  *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: "Something went wrong while ending session"
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  */
+
 
 // Route to end a session
 router.delete('/end/:sessionId', endSession);

@@ -91,7 +91,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
       $set: { avatar: avatar.url },
     },
     { new: true },
-  ).select('-passowrd -refreshToken');
+  ).select('-password -refreshToken');
 
   return res
     .status(200)
