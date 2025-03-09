@@ -13,12 +13,12 @@ import { upload } from '../middlewares/multer.middelware.js';
 const router = Router();
 /**
  * @swagger
- * /api/v1/auth/logout:
+ * /api/v1/user/logout:
  *   post:
  *     summary: Logout user
  *     description: Logs out the authenticated user by clearing cookies and removing the refresh token.
  *     tags:
- *       - Authentication
+ *       - User
  *     security:
  *       - BearerAuth: []
  *     responses:
@@ -84,12 +84,12 @@ router.route('/logout').post(verifyJWT, logoutUser);
 
 /**
  * @swagger
- * /api/v1/auth/change-password:
+ * /api/v1/user/change-password:
  *   post:
  *     summary: Change user password
  *     description: Allows authenticated users to change their current password.
  *     tags:
- *       - Authentication
+ *       - User
  *     security:
  *       - BearerAuth: []  # JWT authentication required
  *     requestBody:
@@ -186,12 +186,12 @@ router.route('/change-password').post(verifyJWT, changeCurrentPassword);
 
 /**
  * @swagger
- * /api/v1/auth/current-user:
+ * /api/v1/user/current-user:
  *   get:
  *     summary: Get the currently authenticated user
  *     description: Fetches details of the logged-in user based on the JWT token.
  *     tags:
- *       - Authentication
+ *       - User
  *     security:
  *       - BearerAuth: []  # Requires JWT authentication
  *     responses:
@@ -284,12 +284,12 @@ router.route('/current-user').get(verifyJWT, getCurrentUser);
 
 /**
  * @swagger
- * /api/v1/auth/update-account:
+ * /api/v1/user/update-account:
  *   patch:
  *     summary: Update user account details
  *     description: Allows authenticated users to update their full name, email, username, and country.
  *     tags:
- *       - Authentication
+ *       - User
  *     security:
  *       - BearerAuth: []  # Requires JWT authentication
  *     requestBody:
@@ -423,12 +423,12 @@ router.route('/update-account').patch(verifyJWT, updateAccountDetails);
 
 /**
  * @swagger
- * /api/v1/auth/avatar:
+ * /api/v1/user/avatar:
  *   patch:
  *     summary: Update user avatar
  *     description: Allows authenticated users to upload and update their profile avatar.
  *     tags:
- *       - Authentication
+ *       - User
  *     security:
  *       - BearerAuth: []  # Requires JWT authentication
  *     requestBody:
@@ -552,12 +552,12 @@ router
 
   /**
  * @swagger
- * /api/v1/auth/active-users:
+ * /api/v1/user/active-users:
  *   get:
  *     summary: Get all active users
  *     description: Fetches a list of all users who are not offline.
  *     tags:
- *       - Authentication
+ *       - User
  *     responses:
  *       200:
  *         description: Successfully retrieved active users.
