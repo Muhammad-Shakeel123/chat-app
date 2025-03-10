@@ -5,7 +5,7 @@ import { app } from './app.js';
 import { Server } from 'socket.io';
 import { setSocketInstance } from './utils/socketUtils.js';
 
-dotenv.config({ path: './.env' });
+dotenv.config({ path: './env' });
 
 // ✅ Create HTTP Server for Express
 const server = http.createServer(app);
