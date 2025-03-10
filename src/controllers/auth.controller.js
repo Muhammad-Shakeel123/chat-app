@@ -37,14 +37,17 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Username or email already exists');
   }
 
-  // Check and upload avatar
-  const avatarLocalPath = req.files?.avatar?.[0]?.path;
-  if (!avatarLocalPath) {
+  // Check if avatar exists
+  if (!req.files || !req.files.avatar || !req.files.avatar[0]) {
     throw new ApiError(400, 'Avatar is required');
   }
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  if (!avatar?.url) {
+  const fileBuffer = req.files.avatar[0].buffer; // Get file buffer
+  const fileMimeType = req.files.avatar[0].mimetype; // Get file type
+
+  // Upload to Cloudinary
+  const avatar = await uploadOnCloudinary(fileBuffer, fileMimeType);
+  if (!avatar?.secure_url) {
     throw new ApiError(500, 'Avatar upload failed');
   }
 
@@ -55,21 +58,14 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     country,
-    avatar: avatar.url,
+    avatar: avatar.secure_url, // Save Cloudinary URL
   });
-
-  // Retrieve user data without sensitive fields
-  const createdUser = await User.findById(user._id).select(
-    '-password -refreshToken',
-  );
-  if (!createdUser) {
-    throw new ApiError(500, 'Something went wrong while registering the user');
-  }
 
   return res
     .status(201)
-    .json(new ApiResponse(201, 'User created successfully', createdUser));
+    .json(new ApiResponse(201, 'User created successfully', user));
 });
+
 
 const userLogin = asyncHandler(async (req, res) => {
   const { email, password, username } = req.body;
