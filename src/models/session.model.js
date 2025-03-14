@@ -16,6 +16,16 @@ const sessionSchema = new Schema(
     startedAt: { type: Date, default: Date.now },
     endedAt: { type: Date, default: null },
     sessionType: { type: String, enum: ['text', 'video'], default: 'video' },
+    roomId: { type: String, unique: true, sparse: true }, // Unique ID for video sessions
+    offer: { type: String }, // Store WebRTC Offer
+    answer: { type: String }, // Store WebRTC Answer
+    iceCandidates: [
+      {
+        candidate: { type: String, required: true },
+        sdpMid: { type: String, required: true },
+        sdpMLineIndex: { type: Number, required: true },
+      },
+    ], // Store ICE Candidates
     messages: [
       {
         sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

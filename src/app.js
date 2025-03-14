@@ -24,6 +24,7 @@ import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import sessionRoutes from './routes/session.routes.js';
 import messageRoutes from './routes/message.routes.js';
+import webrtcRoutes from './routes/webrtc.routes.js';
 
 
 // ✅ Use Routes
@@ -31,6 +32,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/session', sessionRoutes);
 app.use('/api/v1/message', messageRoutes);
+app.use('/api/v1/webrtc', webrtcRoutes);
 
 
 // ✅ Test Route

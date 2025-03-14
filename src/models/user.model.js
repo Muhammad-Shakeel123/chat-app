@@ -4,64 +4,42 @@ import bcrypt from 'bcrypt';
 
 const userSchema = new Schema(
   {
-    fullName: {
-      type: String,
-      required: true, 
-      trim: true, 
-    },
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true, 
-    },
+    fullName: { type: String, required: true, trim: true },
+    username: { type: String, required: true, unique: true, trim: true },
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true, 
+      lowercase: true,
       trim: true,
     },
-    password: {
-      type: String,
-      required: true,
-    },
-    country: {
-      type: String,
-      required: true,
-    },
+    password: { type: String, required: true },
+    country: { type: String, required: true },
     status: {
       type: String,
       enum: ['available', 'on-call', 'offline'],
       default: 'available',
     },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
-    },
-    avatar: {
-      type: String,
-      default: '',
-    },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    avatar: { type: String, default: '' },
     refreshToken: { type: String },
   },
   { timestamps: true },
 );
 
-// Hash password before saving
+// 🔹 Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// Compare passwords
+// 🔹 Compare passwords
 userSchema.methods.isPasswordCorrect = async function (providedPassword) {
   return await bcrypt.compare(providedPassword, this.password);
 };
 
-// Generate Access Token
+// 🔹 Generate Access Token
 userSchema.methods.generateAccessToken = function () {
   return JWT.sign(
     {
@@ -71,23 +49,15 @@ userSchema.methods.generateAccessToken = function () {
       role: this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-    },
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY },
   );
 };
 
-// Generate Refresh Token
+// 🔹 Generate Refresh Token
 userSchema.methods.generateRefreshToken = function () {
-  return JWT.sign(
-    {
-      _id: this._id,
-    },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-    },
-  );
+  return JWT.sign({ _id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+  });
 };
 
 export const User = mongoose.model('User', userSchema);
