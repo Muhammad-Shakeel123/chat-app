@@ -668,152 +668,144 @@ router.get('/ice-candidate-get/:roomId', getIceCandidates);
 
 /**
  * @swagger
+ * openapi: 3.0.0
+ * info:
+ *   title: WebRTC Video Chat API
+ *   description: >
+ *     This documentation provides details on how the frontend should integrate with the WebRTC signaling backend using Socket.IO.
+ *     - **WebRTC Flow**: Explanation of the signaling process.
+ *     - **WebSocket Events**: How the frontend should communicate with the backend.
+ *     - **Frontend WebRTC Code**: Example integration code.
+ *     - **Environment Variables**: Required `.env` settings.
+ *     - **Deployment Considerations**: CORS and production setup.
+ *   version: 1.0.0
+ * 
  * tags:
- *   name: WebRTC
- *   description: WebRTC signaling API for video chat using Socket.IO
+ *   - name: WebRTC
+ *     description: WebRTC signaling events and frontend integration details.
  */
 
 /**
  * @swagger
  * components:
  *   schemas:
- *     JoinRoom:
+ *     WebSocketEvents:
  *       type: object
- *       required:
- *         - roomId
- *         - userId
  *       properties:
- *         roomId:
+ *         join-room:
  *           type: string
- *           description: Unique identifier for the video chat room.
- *         userId:
+ *           description: "User joins a specific video chat room."
+ *         offer:
  *           type: string
- *           description: Unique user identifier.
- *       example:
- *         roomId: "1234"
- *         userId: "user1"
- *     
- *     WebRTCSignal:
+ *           description: "Sends a WebRTC offer to the other peer."
+ *         answer:
+ *           type: string
+ *           description: "Responds to an offer with an answer."
+ *         ice-candidate:
+ *           type: string
+ *           description: "Exchanges ICE candidates for NAT traversal."
+ *         disconnect:
+ *           type: string
+ *           description: "Notifies when a user leaves the room."
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     WebRTCFlow:
  *       type: object
- *       required:
- *         - roomId
- *         - data
  *       properties:
- *         roomId:
+ *         step1:
  *           type: string
- *           description: Room ID where the signaling is happening.
- *         data:
- *           type: object
- *           description: WebRTC signaling data (offer, answer, or ICE candidate).
- *       example:
- *         roomId: "1234"
- *         data: { "type": "offer", "sdp": "v=0..." }
+ *           description: "User joins a room using the 'join-room' event."
+ *         step2:
+ *           type: string
+ *           description: "A WebRTC PeerConnection is created."
+ *         step3:
+ *           type: string
+ *           description: "One peer sends an offer using the 'offer' event."
+ *         step4:
+ *           type: string
+ *           description: "The other peer responds with an answer using the 'answer' event."
+ *         step5:
+ *           type: string
+ *           description: "Both peers exchange ICE candidates using the 'ice-candidate' event."
+ *         step6:
+ *           type: string
+ *           description: "Once ICE candidates are exchanged, the video call starts."
  */
 
 /**
  * @swagger
- * /socket.io:
- *   get:
- *     summary: Establishes a WebSocket connection.
- *     description: Initializes a WebRTC signaling connection using Socket.IO.
- *     tags: [WebRTC]
- *     responses:
- *       101:
- *         description: WebSocket connection established.
- *       500:
- *         description: Internal server error.
+ * components:
+ *   schemas:
+ *     FrontendIntegration:
+ *       type: object
+ *       properties:
+ *         frontendSocketSetup:
+ *           type: string
+ *           example: "const socket = io('http://backend-url');"
+ *         joinRoomExample:
+ *           type: string
+ *           example: "socket.emit('join-room', { roomId: '1234', userId: 'user1' });"
+ *         sendOfferExample:
+ *           type: string
+ *           example: "socket.emit('offer', { roomId: '1234', offer: rtcOffer });"
+ *         sendAnswerExample:
+ *           type: string
+ *           example: "socket.emit('answer', { roomId: '1234', answer: rtcAnswer });"
+ *         sendIceCandidateExample:
+ *           type: string
+ *           example: "socket.emit('ice-candidate', { roomId: '1234', candidate: rtcCandidate });"
  */
 
 /**
  * @swagger
- * /join-room:
- *   post:
- *     summary: Join a WebRTC room
- *     description: Allows a user to join a WebRTC video chat room.
- *     tags: [WebRTC]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/JoinRoom'
- *     responses:
- *       200:
- *         description: Successfully joined the room.
- *       400:
- *         description: Missing required parameters.
+ * components:
+ *   schemas:
+ *     EnvironmentVariables:
+ *       type: object
+ *       properties:
+ *         backendPort:
+ *           type: string
+ *           example: "PORT=8000"
+ *         mongoDBURI:
+ *           type: string
+ *           example: "MONGO_URI=mongodb://localhost:27017/webrtc"
+ *         frontendSocketServer:
+ *           type: string
+ *           example: "REACT_APP_SOCKET_SERVER=http://backend-url"
  */
 
 /**
  * @swagger
- * /offer:
- *   post:
- *     summary: Send WebRTC offer
- *     description: Sends an offer signal to initiate a WebRTC connection.
- *     tags: [WebRTC]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/WebRTCSignal'
- *     responses:
- *       200:
- *         description: Offer sent successfully.
- *       400:
- *         description: Invalid request data.
+ * components:
+ *   schemas:
+ *     DeploymentConsiderations:
+ *       type: object
+ *       properties:
+ *         corsConfig:
+ *           type: string
+ *           example: "cors: { origin: 'https://your-frontend.com' }"
+ *         secureWebRTC:
+ *           type: string
+ *           description: "Ensure HTTPS is used to avoid WebRTC permission issues."
  */
 
 /**
  * @swagger
- * /answer:
- *   post:
- *     summary: Send WebRTC answer
- *     description: Sends an answer signal in response to an offer.
- *     tags: [WebRTC]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/WebRTCSignal'
- *     responses:
- *       200:
- *         description: Answer sent successfully.
- *       400:
- *         description: Invalid request data.
- */
-
-/**
- * @swagger
- * /ice-candidate:
- *   post:
- *     summary: Send ICE candidate
- *     description: Exchanges ICE candidates for NAT traversal in WebRTC.
- *     tags: [WebRTC]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/WebRTCSignal'
- *     responses:
- *       200:
- *         description: ICE candidate sent successfully.
- *       400:
- *         description: Invalid request data.
- */
-
-/**
- * @swagger
- * /disconnect:
- *   post:
- *     summary: Disconnect from WebRTC session
- *     description: Notifies the server when a user disconnects from a WebRTC room.
- *     tags: [WebRTC]
- *     responses:
- *       200:
- *         description: User disconnected successfully.
+ * components:
+ *   schemas:
+ *     STUN_TURN_Servers:
+ *       type: object
+ *       properties:
+ *         stunExample:
+ *           type: string
+ *           example: "stun:stun.l.google.com:19302"
+ *         turnExample:
+ *           type: string
+ *           example: "turn:turnserver.com:3478"
  */
 
 export default router;
