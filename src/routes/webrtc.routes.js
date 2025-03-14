@@ -12,6 +12,221 @@ import {
 const router = express.Router();
 
 // ✅ Define WebRTC Routes
+
+/**
+ * @swagger
+ * description:Here’s a detailed explanation of the provided code for **Frontend Engineers**:
+
+---
+
+# **WebRTC Signaling with Socket.IO in a Node.js Server**
+
+This code sets up a **Node.js backend** with **Express, WebRTC signaling, and Socket.IO** to enable **real-time communication** for a **video calling or peer-to-peer (P2P) connection application**.
+
+---
+
+## **1. Importing Dependencies**
+```javascript
+import dotenv from 'dotenv';
+import http from 'http';
+import connectDB from './db/index.js';
+import { app } from './app.js';
+import { Server } from 'socket.io';
+import { setSocketInstance } from './utils/socketUtils.js';
+```
+- **dotenv** → Loads environment variables from a `.env` file.
+- **http** → Required to create an HTTP server for Express.
+- **connectDB** → Connects to MongoDB (database connection function).
+- **app** → Express application instance.
+- **Server (Socket.IO)** → Enables WebSocket communication for real-time events.
+- **setSocketInstance** → Stores the Socket.IO instance globally (useful for sharing it across modules).
+
+---
+
+## **2. Configuring Environment Variables**
+```javascript
+dotenv.config({ path: './env' });
+```
+- Loads environment variables from a file named `.env`.
+
+---
+
+## **3. Creating an HTTP Server**
+```javascript
+const server = http.createServer(app);
+```
+- **Why?**  
+  - Express runs on HTTP, but WebSockets require direct access to the HTTP server.
+  - This allows **Socket.IO and Express to run on the same server**.
+
+---
+
+## **4. Initializing Socket.IO**
+```javascript
+const io = new Server(server, {
+  cors: { origin: '*' }, // Allow all origins (adjust for production)
+});
+```
+- **Creates a WebSocket server** using `Server(server)`.
+- **CORS configuration** allows requests from any origin (`'*'`), but in production, it should be restricted to trusted domains.
+
+---
+
+## **5. Storing Socket Instance**
+```javascript
+setSocketInstance(io);
+```
+- Saves the Socket.IO instance globally.
+- **Why?**  
+  - This allows other modules to emit or listen for events without reinitializing the `io` instance.
+
+---
+
+## **6. Managing Active Users**
+```javascript
+const activeUsers = new Map(); // userId -> socketId
+```
+- A **Map** stores active users (`userId → socketId`).
+- Helps in identifying users by their unique `userId`.
+
+---
+
+## **7. Handling User Connection**
+```javascript
+io.on('connection', socket => {
+  console.log(`⚡ User connected: ${socket.id}`);
+```
+- **Triggers when a client connects**.
+- Logs the socket connection.
+
+---
+
+## **8. Joining a Room**
+```javascript
+socket.on('join-room', ({ roomId, userId }) => {
+  if (!roomId || !userId) return; // Prevent invalid data
+  socket.join(roomId);
+  activeUsers.set(userId, socket.id);
+  console.log(`👥 User ${userId} joined room: ${roomId}`);
+});
+```
+- **Rooms allow users to communicate only with specific peers**.
+- A user **joins a room** (`roomId`) and their socket ID is **stored in activeUsers**.
+- **Why?**  
+  - Enables **group video calls or one-on-one connections**.
+
+---
+
+## **9. WebRTC Offer Handling**
+```javascript
+socket.on('offer', ({ roomId, offer }) => {
+  if (!roomId || !offer) return;
+  socket.to(roomId).emit('offer', { offer });
+});
+```
+- When a user creates a **WebRTC connection**, they send an **offer**.
+- This offer is **broadcasted to all users in the room**.
+
+---
+
+## **10. WebRTC Answer Handling**
+```javascript
+socket.on('answer', ({ roomId, answer }) => {
+  if (!roomId || !answer) return;
+  socket.to(roomId).emit('answer', { answer });
+});
+```
+- After receiving an offer, the second peer **sends an answer**.
+- This **completes the connection setup**.
+
+---
+
+## **11. ICE Candidate Exchange**
+```javascript
+socket.on('ice-candidate', ({ roomId, candidate }) => {
+  if (!roomId || !candidate) return;
+  socket.to(roomId).emit('ice-candidate', { candidate });
+});
+```
+- **ICE candidates** help in establishing a **direct P2P connection**.
+- Candidates **are exchanged between peers** to optimize connectivity.
+
+---
+
+## **12. Handling User Disconnection**
+```javascript
+socket.on('disconnect', () => {
+  const userId = [...activeUsers.entries()].find(
+    ([key, value]) => value === socket.id,
+  )?.[0];
+  if (userId) activeUsers.delete(userId);
+  console.log(`❌ User ${userId} disconnected`);
+});
+```
+- When a user **disconnects**, their `userId` is **removed** from `activeUsers`.
+- **Why?**  
+  - Ensures that stale connections don’t remain in memory.
+
+---
+
+## **13. Connecting to MongoDB & Starting the Server**
+```javascript
+connectDB()
+  .then(() => {
+    server.listen(process.env.PORT || 8000, () => {
+      console.log(`⚙️ Server is running at port: ${process.env.PORT}`);
+    });
+  })
+  .catch(err => {
+    console.log('❌ MONGO DB connection failed:', err);
+  });
+```
+- **connectDB()** → Establishes a connection to **MongoDB**.
+- **If successful**, the server **starts listening** on the defined `PORT`.
+- **If MongoDB fails**, logs an error message.
+
+---
+
+# **💡 Frontend Perspective**
+### **How to Interact with This Backend?**
+1. **Connect to Socket.IO**
+   ```javascript
+   const socket = io("http://localhost:8000"); // Replace with deployed backend URL
+   ```
+
+2. **Join a Room**
+   ```javascript
+   socket.emit("join-room", { roomId: "room123", userId: "userABC" });
+   ```
+
+3. **Send WebRTC Offer**
+   ```javascript
+   socket.emit("offer", { roomId: "room123", offer: webrtcOffer });
+   ```
+
+4. **Send WebRTC Answer**
+   ```javascript
+   socket.emit("answer", { roomId: "room123", answer: webrtcAnswer });
+   ```
+
+5. **Exchange ICE Candidates**
+   ```javascript
+   socket.emit("ice-candidate", { roomId: "room123", candidate: iceCandidate });
+   ```
+
+---
+
+# **🚀 Summary**
+✅ **WebRTC signaling server with Socket.IO**  
+✅ **Real-time room-based communication**  
+✅ **Handles offers, answers, and ICE candidates**  
+✅ **Tracks active users & manages disconnections**  
+✅ **MongoDB database connection**  
+
+This setup is **ideal for video conferencing apps, chat applications, and P2P communication**. 🎥💬
+ * tags: 
+ *    -WebRTC
+ */
 /**
  * @swagger
  * /api/v1/webrtc/create-room:
