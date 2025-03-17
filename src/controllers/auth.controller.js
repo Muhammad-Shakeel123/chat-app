@@ -69,22 +69,33 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const userLogin = asyncHandler(async (req, res) => {
   const { email, password, username } = req.body;
+
   if (!email && !username) {
     throw new ApiError(400, 'Username or Email are required');
   }
+
   const user = await User.findOne({
     $or: [{ username }, { email }],
   });
+
   if (!user) {
-    throw new ApiError(404, 'User dose not exist');
+    throw new ApiError(404, 'User does not exist');
   }
+
   const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) {
     throw new ApiError(401, 'Invalid credentials');
   }
+
+  // Generate tokens
   const { refreshToken, accessToken } = await generateAccessAndRefreshTokens(
     user._id,
   );
+
+  // 🔹 Update lastActive timestamp
+  user.lastActive = new Date();
+  await user.save({ validateBeforeSave: false });
+
   const loggedInUser = await User.findById(user._id).select(
     '-password -refreshToken',
   );
@@ -93,6 +104,7 @@ const userLogin = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
   };
+
   return res
     .status(200)
     .cookie('accessToken', accessToken, options)
@@ -108,6 +120,7 @@ const userLogin = asyncHandler(async (req, res) => {
       ),
     );
 });
+
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =

@@ -23,6 +23,7 @@ const userSchema = new Schema(
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     avatar: { type: String, default: '' },
     refreshToken: { type: String },
+    lastActive: { type: Date, default: null },
   },
   { timestamps: true },
 );

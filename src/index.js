@@ -4,6 +4,7 @@ import connectDB from './db/index.js';
 import { app } from './app.js';
 import { Server } from 'socket.io';
 import { setSocketInstance } from './utils/socketUtils.js';
+import { disconnectUser } from './controllers/webrtc.controller.js';
 
 dotenv.config({ path: './env' });
 
@@ -56,8 +57,13 @@ io.on('connection', socket => {
     const userId = [...activeUsers.entries()].find(
       ([key, value]) => value === socket.id,
     )?.[0];
-    if (userId) activeUsers.delete(userId);
-    console.log(`❌ User ${userId} disconnected`);
+
+    if (userId) {
+      activeUsers.delete(userId);
+      disconnectUser(userId); // ✅ Remove user from queue
+    }
+
+    console.log(`❌ User ${userId || 'Unknown'} disconnected`);
   });
 });
 
@@ -65,7 +71,7 @@ io.on('connection', socket => {
 connectDB()
   .then(() => {
     server.listen(process.env.PORT || 8000, () => {
-      console.log(`⚙️ Server is running at port: ${process.env.PORT}`);
+      console.log(`⚙️ Server is running at port: ${process.env.PORT || 8000}`);
     });
   })
   .catch(err => {
