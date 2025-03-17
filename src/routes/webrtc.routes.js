@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /create-room:
+ * /api/v1/create-room:
  *   post:
  *     summary: Match users in a WebRTC room or add to the waiting queue
  *     description: Matches a user with another waiting user or adds them to the queue.
@@ -98,7 +98,7 @@ const router = express.Router();
 router.post('/create-room', createRoom);
 /**
  * @swagger
- * /next-chat:
+ * /api/v1/next-chat:
  *   post:
  *     summary: Skip current match and find a new one
  *     description: Removes the user from the current session and searches for a new match.
