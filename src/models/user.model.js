@@ -24,6 +24,7 @@ const userSchema = new Schema(
     avatar: { type: String, default: '' },
     refreshToken: { type: String },
     lastActive: { type: Date, default: null },
+    isLoggedIn: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

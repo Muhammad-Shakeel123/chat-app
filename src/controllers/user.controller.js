@@ -5,18 +5,12 @@ import { User } from '../models/user.model.js';
 import uploadOnCloudnary from '../utils/cloudinary.js';
 
 const logoutUser = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $unset: { refreshToken: 1 },
-    },
-    { new: true },
-  );
+  await User.findByIdAndUpdate(req.user._id, {
+    $unset: { refreshToken: 1 },
+    isLoggedIn: false, // 🔹 Mark user as logged out
+  });
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
+  const options = { httpOnly: true, secure: true };
 
   return res
     .status(200)
@@ -24,7 +18,6 @@ const logoutUser = asyncHandler(async (req, res) => {
     .clearCookie('refreshToken', options)
     .json(new ApiResponse(200, {}, 'User logged out successfully'));
 });
-
 
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
@@ -98,22 +91,24 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, 'Avatar updated successfully'));
 });
 const getActiveUsers = asyncHandler(async (req, res) => {
-  const THIRTY_MINUTES_AGO = new Date(Date.now() - 30 * 60 * 1000);
-
-  const activeUsers = await User.find({
-    lastActive: { $gte: THIRTY_MINUTES_AGO },
-  }).select('-password -refreshToken');
+  const activeUsers = await User.find({ isLoggedIn: true }).select(
+    '-password -refreshToken',
+  );
 
   if (!activeUsers.length) {
     return res
       .status(200)
-      .json(new ApiResponse(200, [], 'No active users found'));
+      .json(new ApiResponse(200, [], 'No logged-in users found'));
   }
 
   res
     .status(200)
     .json(
-      new ApiResponse(200, activeUsers, 'Active users retrieved successfully'),
+      new ApiResponse(
+        200,
+        activeUsers,
+        'Logged-in users retrieved successfully',
+      ),
     );
 });
 

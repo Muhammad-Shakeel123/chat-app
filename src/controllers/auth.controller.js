@@ -74,9 +74,7 @@ const userLogin = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Username or Email are required');
   }
 
-  const user = await User.findOne({
-    $or: [{ username }, { email }],
-  });
+  const user = await User.findOne({ $or: [{ username }, { email }] });
 
   if (!user) {
     throw new ApiError(404, 'User does not exist');
@@ -92,7 +90,8 @@ const userLogin = asyncHandler(async (req, res) => {
     user._id,
   );
 
-  // 🔹 Update lastActive timestamp
+  // 🔹 Update login status & last active timestamp
+  user.isLoggedIn = true;
   user.lastActive = new Date();
   await user.save({ validateBeforeSave: false });
 
@@ -100,10 +99,7 @@ const userLogin = asyncHandler(async (req, res) => {
     '-password -refreshToken',
   );
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
+  const options = { httpOnly: true, secure: true };
 
   return res
     .status(200)
@@ -112,14 +108,12 @@ const userLogin = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        {
-          user: loggedInUser,
-          accessToken,
-        },
+        { user: loggedInUser, accessToken },
         'User logged in successfully',
       ),
     );
 });
+
 
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
