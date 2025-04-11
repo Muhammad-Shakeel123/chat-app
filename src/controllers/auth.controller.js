@@ -10,7 +10,7 @@ const generateAccessAndRefreshTokens = async userId => {
   try {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken(); // Corrected variable name
+    const refreshToken = user.generateRefreshToken(); 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
     return { refreshToken, accessToken };
@@ -90,7 +90,7 @@ const userLogin = asyncHandler(async (req, res) => {
     user._id,
   );
 
-  // 🔹 Update login status & last active timestamp
+  //  Update login status & last active timestamp
   user.isLoggedIn = true;
   user.lastActive = new Date();
   await user.save({ validateBeforeSave: false });

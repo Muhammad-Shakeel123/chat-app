@@ -18,7 +18,7 @@ const uploadOnCloudinary = async (fileBuffer, fileMimeType) => {
         } else {
           resolve(result);
         }
-      },
+      },   
     );
 
     streamifier.createReadStream(fileBuffer).pipe(uploadStream);

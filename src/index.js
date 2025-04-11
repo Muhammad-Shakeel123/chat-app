@@ -24,7 +24,7 @@ const activeUsers = new Map(); // userId -> socketId
 
 // ✅ WebRTC Signaling Logic
 io.on('connection', socket => {
-  console.log(`⚡ User connected: ${socket.id}`);
+  console.log(`User connected: ${socket.id}`);
 
   // ✅ When a user joins a room
   socket.on('join-room', ({ roomId, userId }) => {
@@ -63,7 +63,7 @@ io.on('connection', socket => {
       disconnectUser(userId); // ✅ Remove user from queue
     }
 
-    console.log(`❌ User ${userId || 'Unknown'} disconnected`);
+    console.log(`User ${userId || 'Unknown'} disconnected`);
   });
 });
 
@@ -71,9 +71,9 @@ io.on('connection', socket => {
 connectDB()
   .then(() => {
     server.listen(process.env.PORT || 8000, () => {
-      console.log(`⚙️ Server is running at port: ${process.env.PORT || 8000}`);
+      console.log(`Server is running at port: ${process.env.PORT || 8000}`);
     });
   })
   .catch(err => {
-    console.log('❌ MONGO DB connection failed:', err);
+    console.log('MONGO DB connection failed:', err);
   });
