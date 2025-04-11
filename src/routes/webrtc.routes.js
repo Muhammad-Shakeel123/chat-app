@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/create-room:
+ * /api/v1/webrtc/create-room:
  *   post:
  *     summary: Match users in a WebRTC room or add to the waiting queue
  *     description: Matches a user with another waiting user or adds them to the queue.
