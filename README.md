@@ -80,7 +80,7 @@ The frontend is a React-based web application that provides the user interface f
    ```
 
 ### Preview:
-![Omegle Clone Preview](omegle clone/public/image.png)
+![Omegle Clone Preview](images/image.png)
 
 ---
 
