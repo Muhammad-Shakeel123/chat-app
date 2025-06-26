@@ -57,6 +57,33 @@ This project is the backend implementation for an Omegle-like web application, d
 
 ---
 
+## Frontend - Omegle Clone 🎥
+
+The frontend is a React-based web application that provides the user interface for the Omegle-like chat experience. It includes pages for home, login, signup, video calls, and more.
+
+### Features:
+- React with React Router for client-side routing.
+- Redux Toolkit for state management.
+- Real-time video chat and text chat interfaces.
+- Responsive design with Tailwind CSS.
+- Animations using GSAP and Framer Motion.
+
+### Running the Frontend:
+1. Navigate to the `omegle clone` directory.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Preview:
+![Omegle Clone Preview](omegle clone/public/image.png)
+
+---
+
 ## APIs and WebSocket Events 📡
 
 ### APIs:
@@ -86,15 +113,15 @@ This project is the backend implementation for an Omegle-like web application, d
 - **Authentication**: JWT, bcrypt
 - **Real-time Communication**: WebSockets, Socket.IO
 - **Testing**: Mocha/Chai or Jest
+- **Frontend**: React, Redux Toolkit, React Router, Tailwind CSS, GSAP, Framer Motion
 
 ---
 
 ## Deliverables 📋
 
 1. Complete Node.js backend source code.
-2. API documentation and WebSocket event descriptions.
-3. List of dependencies and tools used.
+2. React frontend source code.
+3. API documentation and WebSocket event descriptions.
+4. List of dependencies and tools used.
 
 ---
-
-This backend demonstrates my ability to build secure, scalable, and real-time applications while following industry best practices. Feel free to contribute or reach out with questions! 🎉
